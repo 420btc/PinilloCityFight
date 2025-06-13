@@ -110,8 +110,8 @@ export const fighters: Fighter[] = [
     specialMove: "Mel's Punch",
   },
   {
-    id: "nico-rohstahl",
-    name: "Nico Rohstahl",
+    id: "Carlos-gil",
+    name: "Carlos Gil",
     description: "The steel-willed fighter with unbreakable defense",
     portrait: "/images/fighters/portrait-nicorohstahl.png",
     sprite: "/images/fighters/nicorohstahl_stand.png",
