@@ -56,9 +56,9 @@ export const fighters: Fighter[] = [
     specialMove: "Sonic Shades",
   },
   {
-    id: "jensator",
-    name: "Jensator",
-    description: "The cap-wearing technician with unmatched speed",
+    id: "David-Cabeza",
+    name: "David Cabeza",
+    description: "The man of weed and a love for nature",
     portrait: "/images/fighters/portrait-jensator.png",
     sprite: "/images/fighters/jensator-stand.png",
     punchSprite: "/images/fighters/jensator-punch.png",
