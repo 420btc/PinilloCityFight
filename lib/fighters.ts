@@ -74,9 +74,9 @@ export const fighters: Fighter[] = [
     specialMove: "Cap Crusher",
   },
   {
-    id: "justus-jonas",
-    name: "Justus Jonas",
-    description: "The mysterious detective with unpredictable moves",
+    id: "Jorge-Freitas",
+    name: "Jorge Freitas",
+    description: "The mysterious 420 detective with unpredictable moves",
     portrait: "/images/fighters/portrait-justusjonas.png",
     sprite: "/images/fighters/justusjonas_stand.png",
     punchSprite: "/images/fighters/justusjonas_punch.png",
@@ -89,7 +89,7 @@ export const fighters: Fighter[] = [
     wonSprite: "/images/fighters/justusjonas_won.png",
     hitSprite: "/images/fighters/justusjonas_gotpunched.png",
     useSingleSprite: true,
-    specialMove: "Three Question Combo",
+    specialMove: "Three Joints Attack",
   },
   {
     id: "paddy",
