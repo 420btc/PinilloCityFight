@@ -6,10 +6,9 @@ import { SoundProvider } from "@/components/sound-context"
 import { MuteButton } from "@/components/mute-button"
 
 export const metadata: Metadata = {
-  title: "Friedrichshain Connection",
+  title: "Fight in Pinillo City",
   description: "A 90s-style fighting game",
   manifest: "/manifest.json",
-    generator: 'v0.dev'
 }
 
 export default function RootLayout({
