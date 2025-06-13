@@ -20,9 +20,9 @@ export interface Fighter {
 
 export const fighters: Fighter[] = [
   {
-    id: "the-schorsch",
-    name: "The Schorsch",
-    description: "The red-hooded brawler with devastating power",
+    id: "Carlos-Freire",
+    name: "Carlos Freire",
+    description: "The man drone!",
     portrait: "/images/fighters/portrait-theschorsch.png",
     sprite: "/images/fighters/thegeorg_stand.png",
     punchSprite: "/images/fighters/thegeorg_punch.png",
@@ -35,7 +35,7 @@ export const fighters: Fighter[] = [
     wonSprite: "/images/fighters/thegeorg_won.png",
     hitSprite: "/images/fighters/thegeorg_gotpunched.png",
     useSingleSprite: true,
-    specialMove: "Friedrichshain Smash",
+    specialMove: "Roll 360",
   },
   {
     id: "dave-radau",
