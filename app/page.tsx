@@ -20,14 +20,15 @@ export default function IntroScreen() {
   }, [router])
 
   return (
-    <div className="relative w-full h-screen flex flex-col items-center justify-center overflow-hidden">
+    <div className="relative w-full h-screen flex flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-blue-400 via-blue-300 to-orange-200">
       {/* Background with Berlin skyline */}
-      <div className="absolute inset-0 z-0 bg-[#001428] pixelated">
+      <div className="absolute inset-0 z-0">
         <Image
-          src="/images/title_final.jpg"
-          alt="Friedrichshain Connection"
+          src="/images/berlin-skyline.png"
+          alt="Berlin Skyline Background"
           fill
-          className="object-cover pixelated"
+          className="object-contain pixelated"
+          style={{ transform: 'scale(1)', transformOrigin: 'center' }}
           priority
         />
       </div>
