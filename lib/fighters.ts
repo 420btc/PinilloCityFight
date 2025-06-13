@@ -92,9 +92,9 @@ export const fighters: Fighter[] = [
     specialMove: "Three Joints Attack",
   },
   {
-    id: "paddy",
-    name: "Paddy",
-    description: "The blue warrior with balanced offense and defense",
+    id: "Melissa",
+    name: "Mel",
+    description: "The super girl with a strong punch",
     portrait: "/images/fighters/portrait-paddy.png",
     sprite: "/images/fighters/paddy_stand.png",
     punchSprite: "/images/fighters/paddy_punch.png",
@@ -107,7 +107,7 @@ export const fighters: Fighter[] = [
     wonSprite: "/images/fighters/paddy_won.png",
     hitSprite: "/images/fighters/paddy_gotpunched.png",
     useSingleSprite: true,
-    specialMove: "Paddy Whack",
+    specialMove: "Mel's Punch",
   },
   {
     id: "nico-rohstahl",
