@@ -38,9 +38,9 @@ export const fighters: Fighter[] = [
     specialMove: "Roll 360",
   },
   {
-    id: "dave-radau",
-    name: "Dave Radau",
-    description: "The cool-headed fighter with precision strikes",
+    id: "Eric-Quesada",
+    name: "Eric Quesada",
+    description: "The cool photographist with a sharp mind",
     portrait: "/images/fighters/portrait-daveradau.png",
     sprite: "/images/fighters/dave-radau-stand.png",
     punchSprite: "/images/fighters/dave-radau-punch.png",
