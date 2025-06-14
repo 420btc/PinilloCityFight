@@ -68,7 +68,7 @@ export default function CharacterSelect() {
 
       {/* Título fijo en la parte superior */}
       <div className="relative z-6 w-full pt-24 flex justify-center">
-        <h2 className="game-title text-6xl text-center brightness-100">Select Your Fighter</h2>
+        <h2 className="game-title text-6xl text-center text-yellow-500 drop-shadow-[0_0_8px_rgba(255,215,0,0.8)]">Select Your Fighter</h2>
       </div>
 
       {/* Contenido centrado */}

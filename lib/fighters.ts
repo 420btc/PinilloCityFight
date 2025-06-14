@@ -22,7 +22,7 @@ export const fighters: Fighter[] = [
   {
     id: "Carlos-Freire",
     name: "Carlos Freire",
-    description: "The man drone!",
+    description: "The man drone with drone attack!",
     portrait: "/images/fighters/portrait-theschorsch.png",
     sprite: "/images/fighters/thegeorg_stand.png",
     punchSprite: "/images/fighters/thegeorg_punch.png",
@@ -53,7 +53,7 @@ export const fighters: Fighter[] = [
     wonSprite: "/images/fighters/dave-radau-won.png",
     hitSprite: "/images/fighters/daveradau_gotpunched.png",
     useSingleSprite: true,
-    specialMove: "Sonic Shades",
+    specialMove: "Rafage photo attack",
   },
   {
     id: "David-Cabeza",
@@ -71,7 +71,7 @@ export const fighters: Fighter[] = [
     wonSprite: "/images/fighters/jensator-won.png",
     hitSprite: "/images/fighters/jensator_gotpunched.png",
     useSingleSprite: true,
-    specialMove: "Cap Crusher",
+    specialMove: "Weed Crusher",
   },
   {
     id: "Jorge-Freitas",
@@ -93,7 +93,7 @@ export const fighters: Fighter[] = [
   },
   {
     id: "Melissa",
-    name: "Mel",
+    name: "Melissa",
     description: "The super girl with a strong punch",
     portrait: "/images/fighters/portrait-paddy.png",
     sprite: "/images/fighters/paddy_stand.png",
@@ -107,7 +107,7 @@ export const fighters: Fighter[] = [
     wonSprite: "/images/fighters/paddy_won.png",
     hitSprite: "/images/fighters/paddy_gotpunched.png",
     useSingleSprite: true,
-    specialMove: "Mel's Punch",
+    specialMove: "Mel's Punch Attack",
   },
   {
     id: "Carlos-gil",
@@ -125,6 +125,6 @@ export const fighters: Fighter[] = [
     wonSprite: "/images/fighters/nicorohstahl_won.png",
     hitSprite: "/images/fighters/nicorohstahl_gotpunched.png",
     useSingleSprite: true,
-    specialMove: "Steel Defense",
+    specialMove: "Cave man attack",
   },
 ]
