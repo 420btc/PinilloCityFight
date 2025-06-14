@@ -48,10 +48,10 @@ export default function CharacterSelect() {
   }, [selectedIndex, router])
 
   return (
-    <div className="relative w-full h-screen flex flex-col items-center justify-center overflow-hidden">
+    <div className="relative w-full min-h-screen flex flex-col overflow-hidden">
       {/* Background */}
-      <div className="absolute inset-0 z-0 bg-[#001428] pixelated">
-        <div className="absolute inset-0 bg-black/50" /> {/* Made overlay lighter */}
+      <div className="fixed inset-0 z-0 bg-[#001428] pixelated">
+        <div className="absolute inset-0 bg-black/50" />
       </div>
 
       {/* Back to Home Button */}
@@ -66,36 +66,43 @@ export default function CharacterSelect() {
         ← HOME
       </button>
 
-      <div className="z-10 flex flex-col items-center justify-center w-full max-w-4xl">
-        <h2 className="game-title text-4xl mb-4 brightness-125">Select Your Fighter</h2> {/* Added brightness */}
-        <div className="grid grid-cols-3 grid-rows-2 gap-8">
-          {fighters.map((fighter, index) => (
-            <div
-              key={fighter.id}
-              className={`relative w-32 h-32 ${
-                selectedIndex === index ? "ring-4 ring-orange-500 scale-110 transform transition-all" : ""
-              }`}
-              onClick={() => {
-                setSelectedIndex(index)
-              }}
-            >
-              <Image
-                src={fighter.portrait || "/placeholder.svg"}
-                alt={fighter.name}
-                width={128}
-                height={128}
-                className="pixelated w-full h-full object-cover"
-              />
-              <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-center text-xs py-1 game-text">
-                {fighter.name}
+      {/* Título fijo en la parte superior */}
+      <div className="relative z-6 w-full pt-24 flex justify-center">
+        <h2 className="game-title text-6xl text-center brightness-100">Select Your Fighter</h2>
+      </div>
+
+      {/* Contenido centrado */}
+      <div className="flex-1 flex items-center justify-center w-full">
+        <div className="z-10 w-full max-w-4xl">
+          <div className="grid grid-cols-3 grid-rows-2 gap-y-14">
+            {fighters.map((fighter, index) => (
+              <div
+                key={fighter.id}
+                className={`relative w-62 h-62 ${
+                  selectedIndex === index ? "ring-4 ring-orange-500 scale-110 transform transition-all" : ""
+                }`}
+                onClick={() => {
+                  setSelectedIndex(index)
+                }}
+              >
+                <Image
+                  src={fighter.portrait || "/placeholder.svg"}
+                  alt={fighter.name}
+                  width={64}
+                  height={64}
+                  className="pixelated w-full h-full object-cover"
+                />
+                <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-center text-xs py-1 game-text">
+                  {fighter.name}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-        <div className="mt-8 game-text">
-          <div className="text-2xl text-center">{fighters[selectedIndex].name}</div>
-          <div className="text-sm mt-2 text-gray-400">{fighters[selectedIndex].description}</div>
-          <div className="text-sm mt-1 text-orange-500">Special: {fighters[selectedIndex].specialMove}</div>
+            ))}
+          </div>
+          <div className="mt-8 game-text">
+            <div className="text-2xl text-center">{fighters[selectedIndex].name}</div>
+            <div className="text-sm mt-2 text-gray-400">{fighters[selectedIndex].description}</div>
+            <div className="text-sm mt-1 text-orange-500">Special: {fighters[selectedIndex].specialMove}</div>
+          </div>
         </div>
       </div>
     </div>
