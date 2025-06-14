@@ -154,6 +154,19 @@ export default function WinnerScreen() {
               PRESS ESC TO RETURN TO MENU
             </div>
           )}
+
+          {/* Large Back to Menu Button */}
+          <button
+            onClick={() => router.push('/select')}
+            className="mt-8 bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-8 rounded-lg border-4 border-red-800 shadow-2xl transition-all duration-200 hover:scale-105 active:scale-95 text-2xl"
+            style={{
+              fontFamily: 'monospace',
+              textShadow: '3px 3px 0px rgba(0,0,0,0.8)',
+              boxShadow: '6px 6px 0px rgba(0,0,0,0.4)'
+            }}
+          >
+            ← VOLVER AL MENÚ
+          </button>
         </div>
       </div>
     </div>

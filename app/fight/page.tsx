@@ -11,6 +11,12 @@ import { Fighter } from "@/components/fighter"
 import { getRandomFighter } from "@/lib/game-utils"
 import { getRandomStageBackground } from "@/lib/stage-utils"
 
+// Define fighter state types
+type FighterState = "idle" | "jump" | "duck" | "punch" | "kick" | "defence" | "jumpKick"
+
+const FIGHTER_WIDTH = 140
+const PLAYER2_FIGHTER_WIDTH = 140
+
 export default function FightScreen() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -33,8 +39,8 @@ export default function FightScreen() {
   const [cpuHealth, setCpuHealth] = useState(100)
   const [playerPosition, setPlayerPosition] = useState(150) // 150px from left edge
   const [cpuPosition, setCpuPosition] = useState(150) // 150px from right edge
-  const [playerState, setPlayerState] = useState("idle")
-  const [cpuState, setCpuState] = useState("idle")
+  const [playerState, setPlayerState] = useState<FighterState>("idle")
+  const [cpuState, setCpuState] = useState<FighterState>("idle")
   const [playerJumpDirection, setPlayerJumpDirection] = useState<"left" | "right" | null>(null)
   const [isPlayerDefending, setIsPlayerDefending] = useState(false)
   const [isPlayerFacingLeft, setIsPlayerFacingLeft] = useState(false)
@@ -61,9 +67,7 @@ export default function FightScreen() {
   const [isPlayerJumpKicking, setIsPlayerJumpKicking] = useState(false)
 
   // Add state to track player's last action for CPU to react
-  const [playerLastAction, setPlayerLastAction] = useState<
-    "idle" | "punch" | "kick" | "jump" | "duck" | "defence" | "jumpKick"
-  >("idle")
+  const [playerLastAction, setPlayerLastAction] = useState<FighterState>("idle")
 
   // Add state to track CPU movement
   const [cpuMovementTimer, setCpuMovementTimer] = useState(0)
@@ -73,6 +77,9 @@ export default function FightScreen() {
   // Track key press for single tap movement
   const [arrowLeftPressed, setArrowLeftPressed] = useState(false)
   const [arrowRightPressed, setArrowRightPressed] = useState(false)
+
+  // Add pause state
+  const [isPaused, setIsPaused] = useState(false)
 
   const gameLoopRef = useRef<number | null>(null)
   const cpuMovementRef = useRef<number | null>(null)
@@ -88,18 +95,18 @@ export default function FightScreen() {
   const getCpuCenterX = () => window.innerWidth - cpuPosition - 70
 
   // Fighter collision detection - define collision boxes
-  const FIGHTER_WIDTH = 100 // Width of fighter collision box
-  const PLAYER2_FIGHTER_WIDTH = 90 // Slightly smaller hit area for Player 2
+  const FIGHTER_COLLISION_WIDTH = 100 // Width of fighter collision box
+  const PLAYER2_FIGHTER_COLLISION_WIDTH = 90 // Slightly smaller hit area for Player 2
 
   // Check if fighters are colliding
   const checkCollision = () => {
     // Only check collision when both fighters are on the ground (not jumping)
-    if (playerState === "jump" || cpuState === "jump") {
+    if ((playerState as FighterState) === "jump" || (cpuState as FighterState) === "jump") {
       return false
     }
 
-    const playerRight = playerPosition + FIGHTER_WIDTH
-    const cpuLeft = window.innerWidth - cpuPosition - PLAYER2_FIGHTER_WIDTH
+    const playerRight = playerPosition + FIGHTER_COLLISION_WIDTH
+    const cpuLeft = window.innerWidth - cpuPosition - PLAYER2_FIGHTER_COLLISION_WIDTH
 
     // If player's right edge is past CPU's left edge, they're colliding
     return playerRight >= cpuLeft
@@ -124,11 +131,11 @@ export default function FightScreen() {
       const newPosition = Math.max(playerPosition - 20, 50)
 
       // Check if this movement would cause collision
-      const playerRight = newPosition + FIGHTER_WIDTH
-      const cpuLeft = window.innerWidth - cpuPosition - PLAYER2_FIGHTER_WIDTH
+      const playerRight = newPosition + FIGHTER_COLLISION_WIDTH
+      const cpuLeft = window.innerWidth - cpuPosition - PLAYER2_FIGHTER_COLLISION_WIDTH
 
       // Only move if it won't cause collision
-      if (playerState === "jump" || playerRight < cpuLeft) {
+      if ((playerState as FighterState) === "jump" || playerRight < cpuLeft) {
         setPlayerPosition(newPosition)
       }
     }
@@ -155,11 +162,11 @@ export default function FightScreen() {
       const newPosition = Math.min(playerPosition + 20, window.innerWidth - 150)
 
       // Check if this movement would cause collision
-      const playerRight = newPosition + FIGHTER_WIDTH
-      const cpuLeft = window.innerWidth - cpuPosition - PLAYER2_FIGHTER_WIDTH
+      const playerRight = newPosition + FIGHTER_COLLISION_WIDTH
+      const cpuLeft = window.innerWidth - cpuPosition - PLAYER2_FIGHTER_COLLISION_WIDTH
 
       // Only move if it won't cause collision
-      if (playerState === "jump" || playerRight < cpuLeft) {
+      if ((playerState as FighterState) === "jump" || playerRight < cpuLeft) {
         setPlayerPosition(newPosition)
       }
     }
@@ -180,12 +187,12 @@ export default function FightScreen() {
 
   // CPU movement logic - separate from main game loop for more frequent movement
   useEffect(() => {
-    if (gameOver) return
+    if (gameOver || isPaused) return
 
     // CPU movement loop - runs more frequently than the main game loop
     cpuMovementRef.current = window.setInterval(() => {
       // Don't move if CPU is in the middle of an action
-      if (cpuState !== "idle") return
+      if ((cpuState as FighterState) !== "idle") return
 
       // Get positions for calculations
       const cpuCenterX = getCpuCenterX()
@@ -199,7 +206,7 @@ export default function FightScreen() {
       const isPlayerNearby = Math.abs(cpuCenterX - playerCenterX) < 170
 
       // If player is nearby and not on cooldown, attempt to attack
-      if (isPlayerNearby && !cpuAttackCooldown && cpuState === "idle") {
+      if (isPlayerNearby && !cpuAttackCooldown && (cpuState as FighterState) === "idle") {
         const attackChance = Math.random()
 
         if (attackChance < 0.6) {
@@ -217,13 +224,13 @@ export default function FightScreen() {
             // If player is defending, they take reduced damage (1%)
             if (
               Math.abs(cpuCenterX - playerCenterX) < 140 &&
-              playerState !== "jump" &&
+              (playerState as FighterState) !== "jump" &&
               !hitCooldownRef.current &&
               // CPU must be facing the player to hit
               ((cpuCenterX < playerCenterX && isCpuFacingLeft) || (cpuCenterX > playerCenterX && !isCpuFacingLeft))
             ) {
               // If player is defending, they take reduced damage (1%)
-              if (playerState === "defence") {
+              if ((playerState as FighterState) === "defence") {
                 setPlayerHealth((prev) => Math.max(0, prev - 1)) // 1% damage when defending
                 // Don't set isPlayerHit when defending - keep defense sprite
               } else {
@@ -256,14 +263,14 @@ export default function FightScreen() {
             // If player is defending, they take reduced damage (1%)
             if (
               Math.abs(cpuCenterX - playerCenterX) < 170 &&
-              playerState !== "jump" &&
-              playerState !== "duck" && // Added check for ducking
+              (playerState as FighterState) !== "jump" &&
+              (playerState as FighterState) !== "duck" && // Added check for ducking
               !hitCooldownRef.current &&
               // CPU must be facing the player to hit
               ((cpuCenterX < playerCenterX && isCpuFacingLeft) || (cpuCenterX > playerCenterX && !isCpuFacingLeft))
             ) {
               // If player is defending, they take reduced damage (1%)
-              if (playerState === "defence") {
+              if ((playerState as FighterState) === "defence") {
                 setPlayerHealth((prev) => Math.max(0, prev - 1)) // 1% damage when defending
                 // Don't set isPlayerHit when defending - keep defense sprite
               } else {
@@ -319,11 +326,11 @@ export default function FightScreen() {
           const newPosition = Math.max(50, Math.min(window.innerWidth - 150, prev + direction * 15))
 
           // Check if this movement would cause collision
-          const playerRight = playerPosition + FIGHTER_WIDTH
-          const cpuLeft = window.innerWidth - newPosition - PLAYER2_FIGHTER_WIDTH
+          const playerRight = playerPosition + FIGHTER_COLLISION_WIDTH
+          const cpuLeft = window.innerWidth - newPosition - PLAYER2_FIGHTER_COLLISION_WIDTH
 
           // Only move if it won't cause collision or CPU is jumping
-          if (cpuState === "jump" || playerRight < cpuLeft) {
+          if ((cpuState as FighterState) === "jump" || playerRight < cpuLeft) {
             return newPosition
           }
           return prev
@@ -346,11 +353,11 @@ export default function FightScreen() {
           const newPosition = Math.max(50, Math.min(window.innerWidth - 150, prev + direction * 15))
 
           // Check if this movement would cause collision
-          const playerRight = playerPosition + FIGHTER_WIDTH
-          const cpuLeft = window.innerWidth - newPosition - PLAYER2_FIGHTER_WIDTH
+          const playerRight = playerPosition + FIGHTER_COLLISION_WIDTH
+          const cpuLeft = window.innerWidth - newPosition - PLAYER2_FIGHTER_COLLISION_WIDTH
 
           // Only move if it won't cause collision or CPU is jumping
-          if (cpuState === "jump" || playerRight < cpuLeft) {
+          if ((cpuState as FighterState) === "jump" || playerRight < cpuLeft) {
             return newPosition
           }
           return prev
@@ -364,7 +371,7 @@ export default function FightScreen() {
       }
 
       // Random duck or jump (lower probability)
-      if (Math.random() < 0.1 && cpuState === "idle") {
+      if (Math.random() < 0.1 && (cpuState as FighterState) === "idle") {
         // Stop walking animation during action
         setIsCpuWalking(false)
 
@@ -397,11 +404,12 @@ export default function FightScreen() {
     cpuPosition,
     isCpuFacingLeft,
     difficulty,
+    isPaused,
   ])
 
   // Game loop for CPU AI decisions
   useEffect(() => {
-    if (gameOver) return
+    if (gameOver || isPaused) return
 
     // CPU AI
     gameLoopRef.current = window.setInterval(() => {
@@ -420,7 +428,7 @@ export default function FightScreen() {
       setIsCpuFacingLeft(cpuCenterX < playerCenterX)
 
       // React to player's last action
-      if (playerLastAction === "kick" && cpuState === "idle" && action < 0.7) {
+      if ((playerLastAction as FighterState) === "kick" && (cpuState as FighterState) === "idle" && action < 0.7) {
         // Stop walking animation during action
         setIsCpuWalking(false)
 
@@ -432,7 +440,7 @@ export default function FightScreen() {
         return
       }
 
-      if (playerLastAction === "punch" && cpuState === "idle" && action < 0.7) {
+      if ((playerLastAction as FighterState) === "punch" && (cpuState as FighterState) === "idle" && action < 0.7) {
         // Stop walking animation during action
         setIsCpuWalking(false)
 
@@ -445,7 +453,7 @@ export default function FightScreen() {
       }
 
       // Sometimes use defence when player is attacking
-      if ((playerLastAction === "punch" || playerLastAction === "kick") && cpuState === "idle" && action < 0.4) {
+      if (((playerLastAction as FighterState) === "punch" || (playerLastAction as FighterState) === "kick") && (cpuState as FighterState) === "idle" && action < 0.4) {
         // Stop walking animation during action
         setIsCpuWalking(false)
 
@@ -473,11 +481,12 @@ export default function FightScreen() {
     gameOver,
     playerLastAction,
     difficulty,
+    isPaused,
   ])
 
   // Handle continuous movement when keys are held down for player
   useEffect(() => {
-    if (gameOver) return
+    if (gameOver || isPaused) return
 
     // Clear any existing movement interval
     if (movementIntervalRef.current) {
@@ -486,19 +495,19 @@ export default function FightScreen() {
     }
 
     // Handle movement and direction
-    if ((isKeyDown.ArrowRight || isKeyDown.ArrowLeft) && playerState !== "duck") {
+    if ((isKeyDown.ArrowRight || isKeyDown.ArrowLeft) && (playerState as FighterState) !== "duck") {
       // Set walking animation when moving
-      if (playerState === "idle") setIsPlayerWalking(true)
+      if ((playerState as FighterState) === "idle") setIsPlayerWalking(true)
 
       // Set up continuous movement
       movementIntervalRef.current = window.setInterval(() => {
-        if (isKeyDown.ArrowRight && playerState !== "jump" && playerState !== "defence" && playerState !== "duck") {
+        if (isKeyDown.ArrowRight && (playerState as FighterState) !== "jump" && (playerState as FighterState) !== "defence" && (playerState as FighterState) !== "duck") {
           // Calculate new position
           const newPosition = Math.min(playerPosition + 10, window.innerWidth - 150)
 
           // Check if this movement would cause collision
-          const playerRight = newPosition + FIGHTER_WIDTH
-          const cpuLeft = window.innerWidth - cpuPosition - PLAYER2_FIGHTER_WIDTH
+          const playerRight = newPosition + FIGHTER_COLLISION_WIDTH
+          const cpuLeft = window.innerWidth - cpuPosition - PLAYER2_FIGHTER_COLLISION_WIDTH
 
           // Only move if it won't cause collision
           if (playerRight < cpuLeft) {
@@ -506,9 +515,9 @@ export default function FightScreen() {
           }
         } else if (
           isKeyDown.ArrowLeft &&
-          playerState !== "jump" &&
-          playerState !== "defence" &&
-          playerState !== "duck"
+          (playerState as FighterState) !== "jump" &&
+          (playerState as FighterState) !== "defence" &&
+          (playerState as FighterState) !== "duck"
         ) {
           setPlayerPosition((prev) => Math.max(prev - 10, 50))
         }
@@ -524,14 +533,14 @@ export default function FightScreen() {
         movementIntervalRef.current = null
       }
     }
-  }, [isKeyDown.ArrowRight, isKeyDown.ArrowLeft, gameOver, playerState, playerPosition, cpuPosition])
+  }, [isKeyDown.ArrowRight, isKeyDown.ArrowLeft, gameOver, playerState, playerPosition, cpuPosition, isPaused])
 
   // Handle jump with direction - only jump once per key press
   useEffect(() => {
-    if (gameOver) return
+    if (gameOver || isPaused) return
 
     // Handle jump key press
-    if (isKeyDown.ArrowUp && playerState === "idle" && !jumpKeyPressed) {
+    if (isKeyDown.ArrowUp && (playerState as FighterState) === "idle" && !jumpKeyPressed) {
       setJumpKeyPressed(true)
       setPlayerLastAction("jump")
       // Stop walking animation during jump
@@ -568,17 +577,17 @@ export default function FightScreen() {
       setJumpKeyPressed(false)
     }
 
-    if (isKeyDown.ArrowDown && playerState === "idle") {
+    if (isKeyDown.ArrowDown && (playerState as FighterState) === "idle") {
       setPlayerState("duck")
       setPlayerLastAction("duck")
       // Stop walking animation during duck
       setIsPlayerWalking(false)
-    } else if (!isKeyDown.ArrowDown && playerState === "duck") {
+    } else if (!isKeyDown.ArrowDown && (playerState as FighterState) === "duck") {
       setPlayerState("idle")
       setPlayerLastAction("idle")
     }
 
-    if (isKeyDown.d && playerState === "idle") {
+    if (isKeyDown.d && (playerState as FighterState) === "idle") {
       setPlayerState("punch")
       setPlayerLastAction("punch")
       // Stop walking animation during punch
@@ -591,13 +600,13 @@ export default function FightScreen() {
       // Only allow hits when player is close to CPU and facing the right direction
       if (
         Math.abs(cpuCenterX - playerCenterX) < 140 && // Reduced hit area
-        cpuState !== "jump" && // Can't hit jumping CPU (dodge)
+        (cpuState as FighterState) !== "jump" && // Can't hit jumping CPU (dodge)
         !hitCooldownRef.current &&
         // Player must be facing the CPU to hit
         ((playerCenterX < cpuCenterX && !isPlayerFacingLeft) || (playerCenterX > cpuCenterX && isPlayerFacingLeft))
       ) {
         // If CPU is defending, they take reduced damage (1%)
-        if (cpuState === "defence") {
+        if ((cpuState as FighterState) === "defence") {
           setCpuHealth((prev) => Math.max(0, prev - 1)) // 1% damage when defending
           // Don't set isCpuHit when defending - keep defense sprite
         } else {
@@ -624,9 +633,9 @@ export default function FightScreen() {
     }
 
     // Handle kick - now works both on ground and in air
-    if (isKeyDown.a && (playerState === "idle" || playerState === "jump")) {
+    if (isKeyDown.a && ((playerState as FighterState) === "idle" || (playerState as FighterState) === "jump")) {
       // If in air, do a jump kick, otherwise do a regular kick
-      const isJumpKick = playerState === "jump"
+      const isJumpKick = (playerState as FighterState) === "jump"
 
       if (isJumpKick) {
         setPlayerLastAction("jumpKick")
@@ -645,14 +654,14 @@ export default function FightScreen() {
       // Only allow hits when player is close to CPU and facing the right direction
       if (
         Math.abs(cpuCenterX - playerCenterX) < 170 && // Reduced hit area
-        cpuState !== "jump" && // Can't hit jumping CPU
-        (isJumpKick || cpuState !== "duck") && // Regular kick can't hit ducking CPU, but jump kick can
+        (cpuState as FighterState) !== "jump" && // Can't hit jumping CPU
+        (isJumpKick || (cpuState as FighterState) !== "duck") && // Regular kick can't hit ducking CPU, but jump kick can
         !hitCooldownRef.current &&
         // Player must be facing the CPU to hit
         ((playerCenterX < cpuCenterX && !isPlayerFacingLeft) || (playerCenterX > cpuCenterX && isPlayerFacingLeft))
       ) {
         // If CPU is defending, they take reduced damage (1%)
-        if (cpuState === "defence") {
+        if ((cpuState as FighterState) === "defence") {
           setCpuHealth((prev) => Math.max(0, prev - 1)) // 1% damage when defending
           // Don't set isCpuHit when defending - keep defense sprite
         } else {
@@ -668,7 +677,7 @@ export default function FightScreen() {
           hitCooldownRef.current = false
         }, 500)
 
-        const damageDealt = cpuState === "defence" ? 1 : isJumpKick ? 15 : 10
+        const damageDealt = (cpuState as FighterState) === "defence" ? 1 : isJumpKick ? 15 : 10
         if (cpuHealth - damageDealt <= 0) {
           endGame("player")
         }
@@ -684,7 +693,7 @@ export default function FightScreen() {
     }
 
     // Handle defence with S key
-    if (isKeyDown.s && playerState === "idle") {
+    if (isKeyDown.s && (playerState as FighterState) === "idle") {
       setPlayerState("defence")
       setPlayerLastAction("defence")
       setIsPlayerDefending(true)
@@ -747,6 +756,32 @@ export default function FightScreen() {
         <div className="absolute bottom-0 w-full h-20 bg-black/50"></div>
       </div>
 
+      {/* Top menu */}
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex justify-center items-center gap-4">
+        <button
+          onClick={() => router.push('/select')}
+          className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded border-2 border-red-800 shadow-lg transition-all duration-200 hover:scale-105 active:scale-95"
+          style={{
+            fontFamily: 'monospace',
+            textShadow: '2px 2px 0px rgba(0,0,0,0.8)',
+            boxShadow: '4px 4px 0px rgba(0,0,0,0.3)'
+          }}
+        >
+          ← MENU
+        </button>
+        <button
+          onClick={() => setIsPaused((prev) => !prev)}
+          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded border-2 border-blue-800 shadow-lg transition-all duration-200 hover:scale-105 active:scale-95"
+          style={{
+            fontFamily: 'monospace',
+            textShadow: '2px 2px 0px rgba(0,0,0,0.8)',
+            boxShadow: '4px 4px 0px rgba(0,0,0,0.3)'
+          }}
+        >
+          {isPaused ? 'UNPAUSE' : 'PAUSE'}
+        </button>
+      </div>
+
       <div className="z-10 flex flex-col items-center justify-start w-full h-full">
         {/* Health bars */}
         <div className="w-full px-8 pt-4 flex justify-between">
@@ -763,12 +798,12 @@ export default function FightScreen() {
             state={playerState}
             side="left"
             jumpDirection={playerJumpDirection}
-            isDefending={isPlayerDefending || playerState === "defence"}
+            isDefending={isPlayerDefending || (playerState as FighterState) === "defence"}
             isFacingLeft={isPlayerFacingLeft}
             isDefeated={gameOver && winner === "cpu"}
             isVictorious={gameOver && winner === "player"}
             isHit={isPlayerHit}
-            isWalking={isPlayerWalking && playerState === "idle"}
+            isWalking={isPlayerWalking && (playerState as FighterState) === "idle"}
             isJumpKicking={isPlayerJumpKicking}
           />
 
@@ -782,13 +817,38 @@ export default function FightScreen() {
             isDefeated={gameOver && winner === "player"}
             isVictorious={gameOver && winner === "cpu"}
             isHit={isCpuHit}
-            isWalking={isCpuWalking && cpuState === "idle"}
+            isWalking={isCpuWalking && (cpuState as FighterState) === "idle"}
           />
         </div>
 
         {/* Controls help */}
         <FightControls />
       </div>
+
+      {/* Pause Overlay */}
+      {isPaused && (
+        <div className="absolute inset-0 z-30 bg-black/80 flex flex-col items-center justify-center">
+          <div className="bg-gray-800 border-4 border-gray-600 rounded-lg p-8 text-center shadow-2xl">
+            <h2 className="text-4xl font-bold text-white mb-6" style={{ fontFamily: 'monospace', textShadow: '2px 2px 0px rgba(0,0,0,0.8)' }}>
+              JUEGO PAUSADO
+            </h2>
+            <div className="space-y-6 text-white" style={{ fontFamily: 'monospace' }}>
+              <p className="text-lg">Haz clic en el botón para continuar</p>
+              <button
+                onClick={() => setIsPaused(false)}
+                className="bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-8 rounded-lg border-4 border-green-800 shadow-2xl transition-all duration-200 hover:scale-105 active:scale-95 text-2xl"
+                style={{
+                  fontFamily: 'monospace',
+                  textShadow: '3px 3px 0px rgba(0,0,0,0.8)',
+                  boxShadow: '6px 6px 0px rgba(0,0,0,0.4)'
+                }}
+              >
+                ▶ PLAY
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

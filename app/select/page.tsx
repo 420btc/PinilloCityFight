@@ -54,6 +54,18 @@ export default function CharacterSelect() {
         <div className="absolute inset-0 bg-black/50" /> {/* Made overlay lighter */}
       </div>
 
+      {/* Back to Home Button */}
+      <button
+        onClick={() => router.push('/')}
+        className="absolute top-4 left-4 z-20 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-mono text-sm font-bold rounded shadow-lg transition-colors pixelated"
+        style={{
+          textShadow: '2px 2px 0px rgba(0,0,0,0.8)',
+          boxShadow: '4px 4px 0px rgba(0,0,0,0.3)'
+        }}
+      >
+        ← HOME
+      </button>
+
       <div className="z-10 flex flex-col items-center justify-center w-full max-w-4xl">
         <h2 className="game-title text-4xl mb-4 brightness-125">Select Your Fighter</h2> {/* Added brightness */}
         <div className="grid grid-cols-3 grid-rows-2 gap-8">
